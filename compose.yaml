@@ -1,0 +1,27 @@
+version: '3'
+services:
+  app-flask:
+    container_name: 'app-flask'
+    build:
+      context: .
+      dockerfile: app-flask/Dockerfile
+    depends_on:
+      - mongodb
+    restart: always
+
+  app-react:
+    container_name: 'app-react'
+    build:
+      context: .
+      dockerfile: app-react/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - app-flask
+    restart: always
+
+  mongodb:
+    image: "mongo:latest"
+    container_name: 'mongodb'
+    ports:
+      - "27017:27017"
