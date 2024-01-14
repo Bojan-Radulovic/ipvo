@@ -14,7 +14,7 @@ application = Flask(__name__)  # Change 'app' to 'application'
 def get_time():
     # Returning an api for showing in reactjs
     return {
-        'Name': "geek",
+        'Name': "Marko",
         "Age": "22",
         "Date": x,
         "programming": "python"
