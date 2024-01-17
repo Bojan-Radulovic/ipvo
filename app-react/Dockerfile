@@ -1,4 +1,4 @@
-# Build step #1: build the React front end
+# Build step #1: build the React frontend
 FROM node:16-alpine as build-step
 WORKDIR /app
 COPY app-react/package*.json ./

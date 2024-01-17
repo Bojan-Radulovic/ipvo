@@ -1,0 +1,23 @@
+[
+    {"name": "Laptop", "price": 899.99, "available": true, "category": "Electronics", "description": "High-performance laptop"},
+    {"name": "Smartphone", "price": 499.99, "available": true, "category": "Electronics", "description": "Latest smartphone model"},
+    {"name": "Winter Jacket", "price": 79.99, "available": true, "category": "Clothing", "description": "Warm winter jacket"},
+    {"name": "Running Shoes", "price": 59.99, "available": false, "category": "Footwear", "description": "Comfortable running shoes"},
+    {"name": "Coffee Maker", "price": 129.99, "available": true, "category": "Appliances", "description": "Automatic coffee maker"},
+    {"name": "Bookshelf", "price": 149.99, "available": true, "category": "Furniture", "description": "Wooden bookshelf"},
+    {"name": "Digital Camera", "price": 349.99, "available": false, "category": "Electronics", "description": "High-resolution digital camera"},
+    {"name": "Leather Sofa", "price": 799.99, "available": true, "category": "Furniture", "description": "Luxurious leather sofa"},
+    {"name": "Bluetooth Headphones", "price": 89.99, "available": true, "category": "Electronics", "description": "Wireless Bluetooth headphones"},
+    {"name": "Fitness Tracker", "price": 49.99, "available": true, "category": "Fitness", "description": "Tracks your daily activity"},
+    {"name": "Office Chair", "price": 119.99, "available": true, "category": "Furniture", "description": "Ergonomic office chair"},
+    {"name": "Microwave Oven", "price": 69.99, "available": true, "category": "Appliances", "description": "Compact microwave oven"},
+    {"name": "Men's Watch", "price": 199.99, "available": true, "category": "Fashion", "description": "Stylish men's wristwatch"},
+    {"name": "Gaming Console", "price": 299.99, "available": false, "category": "Electronics", "description": "Next-gen gaming console"},
+    {"name": "Dining Table Set", "price": 599.99, "available": true, "category": "Furniture", "description": "Modern dining table set"},
+    {"name": "Yoga Mat", "price": 29.99, "available": true, "category": "Fitness", "description": "Non-slip yoga mat"},
+    {"name": "Blender", "price": 49.99, "available": true, "category": "Appliances", "description": "Powerful kitchen blender"},
+    {"name": "Women's Handbag", "price": 129.99, "available": true, "category": "Fashion", "description": "Fashionable women's handbag"},
+    {"name": "HD Television", "price": 599.99, "available": true, "category": "Electronics", "description": "Ultra HD smart television"},
+    {"name": "Outdoor Grill", "price": 179.99, "available": false, "category": "Appliances", "description": "Portable outdoor grill"}
+  ]
+  
