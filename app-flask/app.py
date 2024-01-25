@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 import json
+import asyncio
+from faststream.rabbit import RabbitBroker
 
 application = Flask(__name__)
 
@@ -73,6 +75,35 @@ def populate_database():
     except Exception as e:
         print(f"Error populating database: {e}")
         return "Error populating database"
+    
+@application.route('/app-flask/send-email', methods=['POST'])
+async def send_email():
+    print("Sending email data: ")
+    try:
+        data = request.json
+        to = data.get('to')
+        subject = data.get('subject')
+        body = data.get('body')
+        print("To: ", to, "\n\n\nSubject: ", subject, "\n\n\nBody: ", body)
+
+        email_data = {
+            'to': to,
+            'subject': subject,
+            'body': body,
+        }
+
+        async with RabbitBroker(host="rabbitmq") as broker:
+            msg = await broker.publish(
+                email_data,
+                queue="to_email",
+                rpc=True,
+            )
+        
+        print("I received: ", msg)
+        return msg
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return "Error sending email"
 
 if __name__ == '__main__':
     application.run()

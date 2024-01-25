@@ -6,8 +6,12 @@ function Admin() {
   const [itemAvailable, setItemAvailable] = useState(true);
   const [itemCategory, setItemCategory] = useState("");
   const [itemDescription, setItemDescription] = useState("");
+  const [sentTo, setSentTo] = useState("bokiflet@gmail.com");
+  const [sentSubject, setSentSubject] = useState("Order #1234 - Receipt and Confirmation");
+  const [sentBody, setSentBody] = useState("Thank you for your business!\n\nYour order:\n\nOrder ID: 1234\n\nShoes: $59.99\nJacket: $99.99\n\nTotal: $159.98\n\n\nShipping Details...");
   const [apiResponseAddItem, setApiResponseAddItem] = useState("");
   const [apiResponsePopulate, setApiResponsePopulate] = useState("");
+  const [apiResponseSendEmail, setApiResponseSendEmail] = useState("");
 
   const handleAddItem = async () => {
     try {
@@ -30,6 +34,28 @@ function Admin() {
       setApiResponsePopulate("Error populating database. Please check the console for details.");
     }
   };
+
+  const handleSendEmail = async () => {
+    try {
+      const response = await fetch("/app-flask/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: sentTo,
+          subject: sentSubject,
+          body: sentBody,
+        }),
+      });
+      const data = await response.text();
+      setApiResponseSendEmail(data);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setApiResponseSendEmail("Error sending email. Please check the console for details.");
+    }
+  };
+  
 
   return (
     <div>
@@ -64,12 +90,41 @@ function Admin() {
         <button type="button" onClick={handleAddItem}>
           Add Item
         </button>
+        <br />
       </form>
 
       {apiResponseAddItem && (
         <div>
           <h3>API Response (Add Item):</h3>
           <p>{apiResponseAddItem}</p>
+        </div>
+      )}
+
+      <div style={{ marginTop: "20px" }}>
+        <label>
+          To:
+          <input type="text" value={sentTo} onChange={(e) => setSentTo(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Subject:
+          <input type="text" value={sentSubject} onChange={(e) => setSentSubject(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Body:
+          <textarea value={sentBody} onChange={(e) => setSentBody(e.target.value)} />
+        </label>
+        <br />
+        <button type="button" onClick={handleSendEmail}>
+          Send Email
+        </button>
+      </div>
+
+      {apiResponseSendEmail && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>API Response (Send Email):</h3>
+          <p>{apiResponseSendEmail}</p>
         </div>
       )}
 

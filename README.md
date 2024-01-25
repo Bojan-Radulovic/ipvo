@@ -20,10 +20,12 @@ This project was made as a part of the Infrastructure for large-scale data unive
 To successfully initiate the project, it is necessary to follow these steps:
 1) Clone the project from GitHub to your local machine.
 
-2) Open a terminal in the project's root directory.
+2) In app-email/app-email.py, change 'app-password-for-your-gmail' to your app password for your gmail.
 
-3) Execute the command `docker-compose up`.
+3) Open a terminal in the project's root directory.
 
-4) Wait for the system to initialize.
+4) Execute the command `docker-compose up`.
 
-5) Access the server using a web browser at the link http://localhost:3000.
+5) Wait for the system to initialize.
+
+6) Access the server using a web browser at the link http://localhost:3000.

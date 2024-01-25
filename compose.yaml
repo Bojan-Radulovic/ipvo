@@ -7,6 +7,7 @@ services:
       dockerfile: app-flask/Dockerfile
     depends_on:
       - mongodb
+      - rabbitmq
     restart: always
 
   app-react:
@@ -18,6 +19,23 @@ services:
       - "3000:80"
     depends_on:
       - app-flask
+    restart: always
+
+  app-email:
+    container_name: 'app-email'
+    build:
+      context: .
+      dockerfile: app-email/Dockerfile
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+
+  rabbitmq:
+    image: "rabbitmq:3.8"
+    container_name: 'rabbitmq'
+    ports:
+      - "5672:5672"
     restart: always
 
   mongodb:
