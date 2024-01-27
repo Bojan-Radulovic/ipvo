@@ -5,6 +5,9 @@ import json
 import asyncio
 from faststream.rabbit import RabbitBroker
 
+import boto3
+from botocore.client import Config
+
 application = Flask(__name__)
 
 mongo_client = MongoClient('mongodb://mongodb:27017/')
@@ -75,6 +78,38 @@ def populate_database():
     except Exception as e:
         print(f"Error populating database: {e}")
         return "Error populating database"
+
+@application.route('/app-flask/testminio')
+def test_minio():
+    s3 = boto3.resource('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password',
+                    config=Config(signature_version='s3v4'))
+    
+    bucket_name = 'test'
+
+    available_buckets = [bucket.name for bucket in s3.buckets.all()]
+    #print(available_buckets)
+    if bucket_name not in available_buckets:
+        s3.create_bucket(
+            Bucket=bucket_name,
+            CreateBucketConfiguration={
+                'LocationConstraint': 'eu-west-1'}
+        )
+
+    source_name = 'requirements.txt'
+    destination_name = 'requirements.txt'
+    s3.Bucket(bucket_name).upload_file(source_name, destination_name)
+
+    objects = []
+    for obj in s3.Bucket(bucket_name).objects.all():
+        objects.append(obj.key)
+    
+    if destination_name in objects:
+        return "Sucess saving!"
+    else:
+        return "Failure saving!"
     
 @application.route('/app-flask/send-email', methods=['POST'])
 async def send_email():
