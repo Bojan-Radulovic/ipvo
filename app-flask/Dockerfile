@@ -25,4 +25,4 @@ COPY app-flask/. .
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-b", ":5000", "app"]
+CMD ["gunicorn","-w", "3", "-b", ":5000", "app"]
