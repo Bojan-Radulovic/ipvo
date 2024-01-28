@@ -14,6 +14,12 @@ mongo_client = MongoClient('mongodb://mongodb:27017/')
 
 db = mongo_client['calendar_app_database']
 
+s3 = boto3.resource('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password',
+                    config=Config(signature_version='s3v4'))
+
 @application.route('/app-flask/items')
 def get_items():
     items = list(db['items'].find())
@@ -71,6 +77,19 @@ def populate_database():
             example_items = json.load(file)
 
         for item in example_items:
+            bucket_name = 'photos'
+
+            available_buckets = [bucket.name for bucket in s3.buckets.all()]
+            if bucket_name not in available_buckets:
+                s3.create_bucket(
+                    Bucket=bucket_name,
+                    CreateBucketConfiguration={
+                        'LocationConstraint': 'eu-west-1'}
+                )
+            source_name = 'test.jpg'
+            destination_name = item['name'] + '.jpg'
+            s3.Bucket(bucket_name).upload_file(source_name, destination_name)
+
             db['items'].insert_one(item)
             print(f"Item added to MongoDB: {item}")
 
@@ -81,12 +100,6 @@ def populate_database():
 
 @application.route('/app-flask/testminio')
 def test_minio():
-    s3 = boto3.resource('s3',
-                    endpoint_url='http://minio:9000',
-                    aws_access_key_id='minio_user',
-                    aws_secret_access_key='minio_password',
-                    config=Config(signature_version='s3v4'))
-    
     bucket_name = 'test'
 
     available_buckets = [bucket.name for bucket in s3.buckets.all()]
@@ -110,6 +123,20 @@ def test_minio():
         return "Sucess saving!"
     else:
         return "Failure saving!"
+
+@application.route('/app-flask/testminiourl')
+def test_minio_url():
+    s3 = boto3.client('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password')
+    bucket_name = 'photos'
+    filename = request.args.get('filename')
+
+    upload_data = s3.generate_presigned_post(bucket_name, # (3)
+                                                    filename,
+                                                    ExpiresIn=3600)
+    return jsonify(upload_data)
     
 @application.route('/app-flask/send-email', methods=['POST'])
 async def send_email():

@@ -12,11 +12,30 @@ function Admin() {
   const [apiResponseAddItem, setApiResponseAddItem] = useState("");
   const [apiResponsePopulate, setApiResponsePopulate] = useState("");
   const [apiResponseSendEmail, setApiResponseSendEmail] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileUpload = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
 
   const handleAddItem = async () => {
     try {
       const response = await fetch(`/app-flask/write?name=${itemName}&price=${itemPrice}&available=${itemAvailable}&category=${itemCategory}&description=${itemDescription}`);
       const data = await response.text();
+
+      const uploadResponse = await fetch(`/app-flask/testminiourl?filename=${selectedFile.name}`);
+      const uploadJson = await uploadResponse.json();
+      var formData = new FormData();
+      for(var key in uploadJson.fields)
+      {
+        formData.append(key, uploadJson.fields[key]);
+      }
+      formData.append('file', selectedFile);
+      const uploadResult = await fetch('http://localhost:9000/photos', {
+        method: "POST",
+        body: formData
+      });
+
       setApiResponseAddItem(data);
     } catch (error) {
       console.error("Error adding item:", error);
@@ -87,6 +106,7 @@ function Admin() {
           <textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} />
         </label>
         <br />
+        <input type="file" onChange={handleFileUpload} />
         <button type="button" onClick={handleAddItem}>
           Add Item
         </button>
