@@ -86,6 +86,79 @@ def write_database_page():
         print(f"Error writing data: {e}")
         return "Error writing data"
 
+@application.route('/app-flask/placeorder', methods=['POST'])
+async def place_order():
+    try:
+        order = request.get_json()
+        email_body = "Thank you for your business!: \n \nYour order:\n \n"
+        print(order["items"])
+
+        total = 0
+        for item in order["items"]:
+            print(item["item_id"])
+            db_item = db['items'].find_one({'_id': ObjectId(item["item_id"])}, {'_id': 0})
+            print(db_item)
+            email_body += db_item["name"] + ": " + str(db_item["price"]) + " EUR  x" + str(item["quantity"]) + "\n"
+            total += db_item["price"] * int(item["quantity"])
+
+        email_body += "Total: " + str(total) + " EUR\n"
+        #print(order["items"])
+
+        new_order = {
+            'items': order["items"],
+            'email': order["email"]
+        }
+
+        item = db['orders'].insert_one(new_order)
+        print("New item's ID: ", item.inserted_id)
+    
+        print(f"Event data written to MongoDB: {new_order}")
+        
+        email_data = {
+            'to': order["email"],
+            'subject': 'Your order has been placed!',
+            'body': email_body,
+        }
+
+        async with RabbitBroker(host="rabbitmq") as broker:
+            msg = await broker.publish(
+                email_data,
+                queue="to_email",
+                rpc=True,
+            )
+
+        return {
+            "message": f"Order added successfully",
+            "_id": str(item.inserted_id)
+        }
+    except Exception as e:
+        print(f"Error writing data: {e}")
+        return "Error writing data"
+
+@application.route('/app-flask/orders')
+def get_orders():
+    items = list(db['orders'].find())
+    items_with_string_ids = [
+        {**item, '_id': str(item['_id'])} for item in items
+    ]
+    return jsonify(items_with_string_ids)
+
+@application.route('/app-flask/order/<orderId>')
+def get_order_by_id(orderId):
+    try:
+        print("Getting object ", orderId)
+        order_id = ObjectId(orderId)
+        order = db['orders'].find_one({'_id': order_id}, {'_id': 0})
+
+        if order:
+            print(order)
+            return jsonify(order)
+        else:
+            return "Order not found", 404
+    except Exception as e:
+        print(f"Error retrieving order: {e}")
+        return "Error retrieving order"
+
 @application.route('/app-flask/populate')
 def populate_database():
     try:
@@ -140,7 +213,7 @@ def test_minio():
     else:
         return "Failure saving!"
 
-@application.route('/app-flask/testminiourl')
+@application.route('/app-flask/getminiourl')
 def test_minio_url():
     s3 = boto3.client('s3',
                     endpoint_url='http://minio:9000',

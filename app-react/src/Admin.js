@@ -24,7 +24,7 @@ function Admin() {
       const responseJson = await response.json();
       //const data = await response.text();
 
-      const uploadResponse = await fetch(`/app-flask/testminiourl?filename=${responseJson._id}`);
+      const uploadResponse = await fetch(`/app-flask/getminiourl?filename=${responseJson._id}`);
       const uploadJson = await uploadResponse.json();
       var formData = new FormData();
       for(var key in uploadJson.fields)
