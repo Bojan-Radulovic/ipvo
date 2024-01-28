@@ -9,17 +9,67 @@ services:
       - mongodb
       - rabbitmq
     restart: always
+    networks:
+      - internalnet
 
-  app-react:
-    container_name: 'app-react'
+  load_balancer:
+    container_name: load_balancer
+    image: nginx:latest
+    volumes:
+      - ./load-balancer/load-balancer.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app-react-1
+      - app-react-2
+      - app-react-3
+    ports:
+      - '8080:80'
+    networks:
+      - internalnet
+
+  app-react-1:
+    container_name: 'app-react-1'
     build:
       context: .
       dockerfile: app-react/Dockerfile
     ports:
-      - "3000:80"
+      - '3001:80'
     depends_on:
       - app-flask
     restart: always
+    volumes:
+      - ./app-react:/app
+    networks:
+      - internalnet
+
+  app-react-2:
+    container_name: 'app-react-2'
+    build:
+      context: .
+      dockerfile: app-react/Dockerfile
+    ports:
+      - '3002:80'
+    depends_on:
+      - app-flask
+    restart: always
+    volumes:
+      - ./app-react:/app
+    networks:
+      - internalnet
+
+  app-react-3:
+    container_name: 'app-react-3'
+    build:
+      context: .
+      dockerfile: app-react/Dockerfile
+    ports:
+      - '3003:80'
+    depends_on:
+      - app-flask
+    restart: always
+    volumes:
+      - ./app-react:/app
+    networks:
+      - internalnet
 
   app-email:
     container_name: 'app-email'
@@ -30,13 +80,17 @@ services:
       - mongodb
       - rabbitmq
     restart: always
+    networks:
+      - internalnet
 
   rabbitmq:
-    image: "rabbitmq:3.8"
+    image: 'rabbitmq:3.8'
     container_name: 'rabbitmq'
     ports:
-      - "5672:5672"
+      - '5672:5672'
     restart: always
+    networks:
+      - internalnet
 
   minio:
     image: quay.io/minio/minio:RELEASE.2022-02-18T01-50-10Z
@@ -52,9 +106,17 @@ services:
       MINIO_ADDRESS: ':9000'
       MINIO_CONSOLE_ADDRESS: ':9001'
     command: minio server /data-1
+    networks:
+      - internalnet
 
   mongodb:
-    image: "mongo:latest"
+    image: 'mongo:latest'
     container_name: 'mongodb'
     ports:
-      - "27017:27017"
+      - '27017:27017'
+    networks:
+      - internalnet
+
+networks:
+  internalnet:
+    driver: bridge
