@@ -1,0 +1,6 @@
+Dockerfile
+.dockerignore
+.gitignore
+README*
+node_modules
+nginx.default.conf
