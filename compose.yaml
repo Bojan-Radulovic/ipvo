@@ -76,12 +76,16 @@ services:
     build:
       context: .
       dockerfile: app-email/Dockerfile
+    environment:
+      GMAIL_APP_PASSWORD: ''
+      GMAIL_APP_USER: 'swiftlyshop021@gmail.com'
     depends_on:
       - mongodb
       - rabbitmq
     restart: always
     networks:
       - internalnet
+
 
   rabbitmq:
     image: 'rabbitmq:3.8'

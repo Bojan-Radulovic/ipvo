@@ -3,9 +3,10 @@ from faststream.rabbit import RabbitBroker
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from os import environ
 
-gmail_user = 'swiftlyshop021@gmail.com'
-gmail_app_password = 'app-password-for-your-gmail' # Be careful not to upload password to github!
+gmail_user = environ.get('GMAIL_APP_USER')
+gmail_app_password = environ.get('GMAIL_APP_PASSWORD')
 
 sent_from = gmail_user
 
