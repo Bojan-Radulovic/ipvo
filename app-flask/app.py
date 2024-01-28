@@ -166,6 +166,10 @@ def populate_database():
             example_items = json.load(file)
 
         for item in example_items:
+            example_item_name = item["name"]
+            item = db['items'].insert_one(item)
+            print("New item's ID: ", item.inserted_id)
+            
             bucket_name = 'photos'
 
             available_buckets = [bucket.name for bucket in s3.buckets.all()]
@@ -175,12 +179,9 @@ def populate_database():
                     CreateBucketConfiguration={
                         'LocationConstraint': 'eu-west-1'}
                 )
-            source_name = 'test.jpg'
-            destination_name = item['name'] + '.jpg'
+            source_name = example_item_name + '.jpg'
+            destination_name = str(item.inserted_id) + '.jpg'
             s3.Bucket(bucket_name).upload_file(source_name, destination_name)
-
-            db['items'].insert_one(item)
-            print(f"Item added to MongoDB: {item}")
 
         return "All items added successfully"
     except Exception as e:
