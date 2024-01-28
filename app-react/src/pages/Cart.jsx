@@ -68,6 +68,9 @@ function Cart() {
                 </strong>
               </div>
               <div>
+                <strong>Price:</strong> {item.price}
+              </div>
+              <div>
                 <strong>Quantity:</strong> {item.quantity}
               </div>
             </StyledCartItem>

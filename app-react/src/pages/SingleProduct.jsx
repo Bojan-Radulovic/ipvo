@@ -69,9 +69,7 @@ function ItemDetail() {
     console.log(item);
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Kad ubaci ID odkomentiraj i izbrisi ovaj sa false
-    // const existingItem = cart.find((cartItem) => cartItem?._id === item?._id);
-    const existingItem = false;
+    const existingItem = cart.find((cartItem) => cartItem?._id === item?._id);
 
     if (existingItem) {
       existingItem.quantity += 1;
