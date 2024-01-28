@@ -34,9 +34,21 @@ def get_item_by_id(itemId):
         print("Getting object ", itemId)
         item_id = ObjectId(itemId)
         item = db['items'].find_one({'_id': item_id}, {'_id': 0})
+
+        s3 = boto3.client('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password')
+
+        item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                    Params={'Bucket': 'photos',
+                                                            'Key': str(item_id) + '.jpg'},
+                                                    ExpiresIn=3600)
+        item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
         print("Retrived: ", item)
 
         if item:
+            print(item)
             return jsonify(item)
         else:
             return "Item not found", 404
@@ -61,11 +73,15 @@ def write_database_page():
             'description': description
         }
 
-        db['items'].insert_one(document)
-
+        item = db['items'].insert_one(document)
+        print("New item's ID: ", item.inserted_id)
+    
         print(f"Event data written to MongoDB: {document}")
 
-        return f"Item {name} added successfully"
+        return {
+            "message": f"Item {name} added successfully",
+            "_id": str(item.inserted_id)
+        }
     except Exception as e:
         print(f"Error writing data: {e}")
         return "Error writing data"
@@ -131,7 +147,7 @@ def test_minio_url():
                     aws_access_key_id='minio_user',
                     aws_secret_access_key='minio_password')
     bucket_name = 'photos'
-    filename = request.args.get('filename')
+    filename = request.args.get('filename') + '.jpg'
 
     upload_data = s3.generate_presigned_post(bucket_name, # (3)
                                                     filename,

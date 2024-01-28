@@ -30,6 +30,7 @@ function ItemDetail() {
           <p>Available: {item.available ? "Yes" : "No"}</p>
           <p>Category: {item.category}</p>
           <p>Description: {item.description}</p>
+          <img src={item.imageUrl}></img>
         </div>
       ) : (
         <p>Loading item details...</p>

@@ -21,9 +21,10 @@ function Admin() {
   const handleAddItem = async () => {
     try {
       const response = await fetch(`/app-flask/write?name=${itemName}&price=${itemPrice}&available=${itemAvailable}&category=${itemCategory}&description=${itemDescription}`);
-      const data = await response.text();
+      const responseJson = await response.json();
+      //const data = await response.text();
 
-      const uploadResponse = await fetch(`/app-flask/testminiourl?filename=${selectedFile.name}`);
+      const uploadResponse = await fetch(`/app-flask/testminiourl?filename=${responseJson._id}`);
       const uploadJson = await uploadResponse.json();
       var formData = new FormData();
       for(var key in uploadJson.fields)
@@ -36,7 +37,7 @@ function Admin() {
         body: formData
       });
 
-      setApiResponseAddItem(data);
+      setApiResponseAddItem(responseJson.message);
     } catch (error) {
       console.error("Error adding item:", error);
       setApiResponseAddItem("Error adding item. Please check the console for details.");
