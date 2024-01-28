@@ -26,6 +26,17 @@ def get_items():
     items_with_string_ids = [
         {**item, '_id': str(item['_id'])} for item in items
     ]
+    for item in items_with_string_ids:
+        s3 = boto3.client('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password')
+
+        item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                    Params={'Bucket': 'photos',
+                                                            'Key': str(item["_id"]) + '.jpg'},
+                                                    ExpiresIn=3600)
+        item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
     return jsonify(items_with_string_ids)
 
 @application.route('/app-flask/item/<itemId>')
@@ -46,6 +57,7 @@ def get_item_by_id(itemId):
                                                     ExpiresIn=3600)
         item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
         print("Retrived: ", item)
+        item['_id'] = str(item_id)
 
         if item:
             print(item)
