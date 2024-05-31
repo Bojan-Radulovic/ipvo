@@ -22,10 +22,12 @@ To successfully initiate the project, it is necessary to follow these steps:
 
 2) In app-email/app-email.py, change 'app-password-for-your-gmail' to your app password for your gmail.
 
-3) Open a terminal in the project's root directory.
+3) Download data and put it in app-flask folder. Download link: https://datarepo.eng.ucsd.edu/mcauley_group/data/amazon_2023/raw/meta_categories/meta_Video_Games.jsonl.gz
 
-4) Execute the command `docker-compose up`.
+4) Open a terminal in the project's root directory.
 
-5) Wait for the system to initialize.
+5) Execute the command `docker-compose up`.
 
-6) Access the server using a web browser at the link http://localhost:3000.
+6) Wait for the system to initialize.
+
+7) Access the server using a web browser at the link http://localhost:3000.
