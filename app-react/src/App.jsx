@@ -12,8 +12,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+      <Route
+          path="/"
+          element={<Home />}
+        />
         <Route
-          path='/'
+          path="/:pageNumber"
           element={<Home />}
         />
         <Route

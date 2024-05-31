@@ -4,6 +4,7 @@ from bson import ObjectId
 import json
 import asyncio
 from faststream.rabbit import RabbitBroker
+import pandas as pd
 
 import boto3
 from botocore.client import Config
@@ -39,6 +40,43 @@ def get_items():
         item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
     return jsonify(items_with_string_ids)
 
+@application.route('/app-flask/items-pagination')
+def get_items_pagination():
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 9))
+    total_items = db['items'].count_documents({})
+    total_pages = (total_items + page_size - 1) // page_size
+
+    print("Recived:")
+    print("Page: ", page)
+    print("Page_size: ", page_size)
+    print("Total_pages: ", total_pages)
+
+    page = max(min(max(1, page), total_pages), 1)
+
+    print("Changed to:")
+    print("Page: ", page)
+    print("Page_size: ", page_size)
+    
+    skip = (page - 1) * page_size
+    limit = page_size
+
+    print("Skip: ", skip)
+    print("Limit: ", limit)
+
+    items = list(db['items'].find().skip(skip).limit(limit))
+    items_with_string_ids = [
+        {**item, '_id': str(item['_id'])} for item in items
+    ]
+    
+    response = {
+        'items': items_with_string_ids,
+        'total_pages': total_pages,
+        'page': page,
+    }
+    
+    return jsonify(response)
+
 @application.route('/app-flask/item/<itemId>')
 def get_item_by_id(itemId):
     try:
@@ -56,6 +94,24 @@ def get_item_by_id(itemId):
                                                             'Key': str(item_id) + '.jpg'},
                                                     ExpiresIn=3600)
         item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        print("Retrived: ", item)
+        item['_id'] = str(item_id)
+
+        if item:
+            print(item)
+            return jsonify(item)
+        else:
+            return "Item not found", 404
+    except Exception as e:
+        print(f"Error retrieving item: {e}")
+        return "Error retrieving item"
+    
+@application.route('/app-flask/item-new/<itemId>')
+def get_item_by_id_new(itemId):
+    try:
+        print("Getting object ", itemId)
+        item_id = ObjectId(itemId)
+        item = db['items'].find_one({'_id': item_id}, {'_id': 0})
         print("Retrived: ", item)
         item['_id'] = str(item_id)
 
@@ -196,6 +252,47 @@ def populate_database():
             s3.Bucket(bucket_name).upload_file(source_name, destination_name)
 
         return "All items added successfully"
+    except Exception as e:
+        print(f"Error populating database: {e}")
+        return "Error populating database"
+    
+@application.route('/app-flask/populate_new')
+def populate_database_new():
+    try:
+        print("Populate database process started")
+        file_path = 'meta_Video_Games.jsonl'
+
+        fields_to_check = ['title', 'main_category', 'description', 'images', 'price']
+        chunk_size = 1000
+        inserted_count = 0
+
+        def process_chunk(chunk):
+            print("Processing chunk")
+            filtered_df = chunk.dropna(subset=fields_to_check, how='any')
+
+            def create_document(row):
+                description = row['description'][0] if row['description'] else ''
+                img = row['images'][0].get('large', '') if row['images'] else ''
+                document = {
+                    'name': row['title'],
+                    'price': row['price'],
+                    'available': row['price'] is not None,
+                    'category': row['main_category'],
+                    'description': description,
+                    'imageUrl': img,
+                }
+                inserted_document = db['items'].insert_one(document)
+                return inserted_document.inserted_id
+
+            items = filtered_df.apply(create_document, axis=1)
+            return len(items)
+
+        with pd.read_json(file_path, lines=True, chunksize=chunk_size) as reader:
+            for chunk in reader:
+                inserted_count += process_chunk(chunk)
+
+        print(f"Successfully inserted {inserted_count} items")
+        return f"Successfully inserted {inserted_count} items"
     except Exception as e:
         print(f"Error populating database: {e}")
         return "Error populating database"

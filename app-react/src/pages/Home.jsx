@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Header from '../components/Header';
@@ -45,24 +45,49 @@ const StyledLink = styled(Link)`
   text-decoration: none;
 `;
 
+const StyledNavBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
 function Store() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
+  const { pageNumber } = useParams();
+  const currentPage = parseInt(pageNumber, 10) || 1;
+  const [totalPages, setTotalPages] = useState(1);
+  const [displayPage, setDisplayPage] = useState(Math.max(currentPage, 1))
+
+  const fetchItems = async () => {
+    try {
+      const page_size = 9;
+      const response = await fetch(`/app-flask/items-pagination?page=${currentPage}&page_size=${page_size}`);
+      const data = await response.json();
+      setItems(data.items);
+      setTotalPages(Math.max(data.total_pages, 1));
+      setDisplayPage(data.page)
+    } catch (error) {
+      console.error('Error fetching items:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await fetch('/app-flask/items');
-        const data = await response.json();
-        setItems(data);
-      } catch (error) {
-        console.error('Error fetching items:', error);
-      }
-    };
-
     fetchItems();
-  }, []);
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   const availableItems = items.filter((item) => item.available);
+
+  const goToPreviousPage = () => {
+    const newPage = Math.max(displayPage - 1, 1);
+    navigate(`/${newPage}`);
+  };
+
+  const goToNextPage = () => {
+    const newPage = Math.min(displayPage + 1, totalPages);
+    navigate(`/${newPage}`);
+  };
 
   return (
     <div>
@@ -80,6 +105,11 @@ function Store() {
           <p>No items available in the store.</p>
         )}
       </StyledProductsGrid>
+      <StyledNavBar>
+        <button onClick={goToPreviousPage} disabled={displayPage <= 1}>Previous</button>
+        <span>Page {displayPage} of {totalPages}</span>
+        <button onClick={goToNextPage} disabled={displayPage >= totalPages}>Next</button>
+      </StyledNavBar>
       <Footer />
     </div>
   );

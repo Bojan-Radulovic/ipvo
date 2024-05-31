@@ -54,7 +54,7 @@ function ItemDetail() {
   useEffect(() => {
     const fetchItemDetail = async () => {
       try {
-        const response = await fetch(`/app-flask/item/${itemId}`);
+        const response = await fetch(`/app-flask/item-new/${itemId}`);
         const data = await response.json();
         setItem(data);
       } catch (error) {

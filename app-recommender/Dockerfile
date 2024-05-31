@@ -2,6 +2,7 @@ FROM python:3.9.5-slim as app-base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV TRANSFORMERS_CACHE=/tmp
 
 WORKDIR /app
 
@@ -15,14 +16,15 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
+COPY app-recommender/requirements.txt .
+
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=app-flask/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt gunicorn
 
 USER appuser
 
-COPY app-flask/. .
+COPY app-recommender/. .
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-w", "3", "-b", ":5000", "--timeout", "300", "app"]
+CMD ["faststream", "run", "app-recommender:app"]

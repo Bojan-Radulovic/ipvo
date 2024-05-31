@@ -46,12 +46,12 @@ function Admin() {
 
   const handlePopulateDatabase = async () => {
     try {
-      const response = await fetch("/app-flask/populate");
+      const response = await fetch("/app-flask/populate_new");
       const data = await response.text();
       setApiResponsePopulate(data);
     } catch (error) {
       console.error("Error populating database:", error);
-      setApiResponsePopulate("Error populating database. Please check the console for details.");
+      setApiResponsePopulate("Error populating database:", error);
     }
   };
 
