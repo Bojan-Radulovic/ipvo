@@ -7,6 +7,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Admin from './pages/Admin';
 import OrderComplete from './pages/OrderComplete';
+import SearchResults from './pages/SearchResults';
 
 function App() {
   return (
@@ -23,6 +24,10 @@ function App() {
         <Route
           path='/item/:itemId'
           element={<SingleProduct />}
+        />
+        <Route
+          path='/search/:query'
+          element={<SearchResults />}
         />
         <Route
           path='/cart'

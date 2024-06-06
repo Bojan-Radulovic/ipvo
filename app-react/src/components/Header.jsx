@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const StyledHeader = styled.div`
@@ -55,11 +57,40 @@ const StyledNav = styled.div`
 `;
 
 function Header() {
+  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState('');
+
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = () => {
+    navigate(`/search/${inputValue}`);
+    setInputValue('');
+  };
+
+
+
   return (
     <StyledHeader>
       <div>
         <StyledLogo>MBACommerce</StyledLogo>
       </div>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+        placeholder="Search"
+        style={{ padding: '0.5rem', fontSize: '1rem'}}
+        size={30}
+      />
       <StyledNav>
         <StyledLink to='/'>Shop</StyledLink>
         <StyledLinkButton to='/cart'>
