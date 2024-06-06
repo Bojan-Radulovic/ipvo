@@ -121,17 +121,17 @@ services:
     networks:
       - internalnet
 
-  # app-recommender:
-  #   container_name: 'app-recommender'
-  #   build:
-  #     context: .
-  #     dockerfile: app-recommender/Dockerfile
-  #   depends_on:
-  #     - mongodb
-  #     - rabbitmq
-  #   restart: always
-  #   networks:
-  #     - internalnet
+  app-recommender:
+    container_name: 'app-recommender'
+    build:
+      context: .
+      dockerfile: app-recommender/Dockerfile
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+    networks:
+      - internalnet
 
 networks:
   internalnet:

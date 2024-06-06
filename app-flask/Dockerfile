@@ -19,9 +19,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=app-flask/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt gunicorn
 
-USER appuser
-
+# Copy the application code before changing the user
 COPY app-flask/. .
+
+# Change ownership of the /app directory and its contents to appuser
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 5000
 

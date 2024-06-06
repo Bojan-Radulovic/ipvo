@@ -11,8 +11,12 @@ function Admin() {
   const [sentBody, setSentBody] = useState("Thank you for your business!\n\nYour order:\n\nOrder ID: 1234\n\nShoes: $59.99\nJacket: $99.99\n\nTotal: $159.98\n\n\nShipping Details...");
   const [apiResponseAddItem, setApiResponseAddItem] = useState("");
   const [apiResponsePopulate, setApiResponsePopulate] = useState("");
+  const [apiResponseExport, setApiResponseExport] = useState("");
   const [apiResponseSendEmail, setApiResponseSendEmail] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [queryAmount, setQueryAmount] = useState("");
+  const [query, setQuery] = useState("");
+  const [apiResponseRecommender, setApiResponseRecommender] = useState("");
 
   const handleFileUpload = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -44,6 +48,19 @@ function Admin() {
     }
   };
 
+  const handleGetRecommendations = async () => {
+    try {
+      const response = await fetch(`/app-flask/recommender?query=${query}&amount=${queryAmount}`);
+      const responseJson = await response.json();
+
+      console.log("Recived recommendations:", responseJson.items);
+      setApiResponseRecommender(responseJson.items);
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      setApiResponseRecommender("Error getting recommendations:", error);
+    }
+  };
+
   const handlePopulateDatabase = async () => {
     try {
       const response = await fetch("/app-flask/populate_new");
@@ -52,6 +69,17 @@ function Admin() {
     } catch (error) {
       console.error("Error populating database:", error);
       setApiResponsePopulate("Error populating database:", error);
+    }
+  };
+
+  const handleExportDatabase = async () => {
+    try {
+      const response = await fetch("/app-flask/export");
+      const data = await response.text();
+      setApiResponseExport(data);
+    } catch (error) {
+      console.error("Error exporting database:", error);
+      setApiResponseExport("Error exporting database:", error);
     }
   };
 
@@ -161,6 +189,51 @@ function Admin() {
           <p>{apiResponsePopulate}</p>
         </div>
       )}
+
+      <div style={{ marginTop: "20px" }}>
+        <button type="button" onClick={handleExportDatabase}>
+          Export Database
+        </button>
+      </div>
+
+      {apiResponseExport && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>API Response (Export Database):</h3>
+          <p>{apiResponseExport}</p>
+        </div>
+      )}
+      <form>
+        <label>
+          Query:
+          <textarea value={query} onChange={(e) => setQuery(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Amount:
+          <input type="number" value={queryAmount} onChange={(e) => setQueryAmount(e.target.value)} />
+        </label>
+        <br />
+        <button type="button" onClick={handleGetRecommendations}>
+          Get recommendations
+        </button>
+        <br />
+      </form>
+
+      {apiResponseRecommender && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>API Response (Recommender):</h3>
+          <div style={{ marginTop: "10px" }}>
+            {apiResponseRecommender.map((item, index) => (
+              <div key={index} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0' }}>
+                  {Object.keys(item).map((key) => (
+                      <p key={key}><strong>{key}:</strong> {item[key]}</p>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

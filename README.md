@@ -24,10 +24,12 @@ To successfully initiate the project, it is necessary to follow these steps:
 
 3) Download data and put it in app-flask folder. Download link: https://datarepo.eng.ucsd.edu/mcauley_group/data/amazon_2023/raw/meta_categories/meta_Video_Games.jsonl.gz
 
-4) Open a terminal in the project's root directory.
+4) Download embeddings.zip and extract to app-recommender/embeddings. Download link: https://drive.google.com/file/d/1qWTTI0dS7yC3Skb-1m8oFn18k_6ugB2k/view?usp=sharing
 
-5) Execute the command `docker-compose up`.
+5) Open a terminal in the project's root directory.
 
-6) Wait for the system to initialize.
+6) Execute the command `docker-compose up`.
 
-7) Access the server using a web browser at the link http://localhost:3000.
+7) Wait for the system to initialize.
+
+8) Access the server using a web browser at the link http://localhost:3000.

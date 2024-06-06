@@ -124,6 +124,23 @@ def get_item_by_id_new(itemId):
         print(f"Error retrieving item: {e}")
         return "Error retrieving item"
 
+@application.route('/app-flask/item-by-name/<itemName>')
+def get_item_by_name(itemName, raw=False):
+    try:
+        print("Getting object by name: ", itemName)
+        item = db['items'].find_one({'name': itemName})
+        print("Retrieved: ", item)
+        if item:
+            item['_id'] = str(item['_id'])
+            if raw:
+                return item
+            return jsonify(item)
+        else:
+            return "Item not found", 404
+    except Exception as e:
+        print(f"Error retrieving item: {e}")
+        return "Error retrieving item"
+
 @application.route('/app-flask/write')
 def write_database_page():
     try:
@@ -365,6 +382,60 @@ async def send_email():
     except Exception as e:
         print(f"Error sending email: {e}")
         return "Error sending email"
+
+@application.route('/app-flask/export')
+def export_database_jsonl():
+    print("Exporting...")
+    try:
+        items = list(db['items'].find())
+
+        with open('exported_data.jsonl', 'w') as jsonl_file:
+            for item in items:
+                item['_id'] = str(item['_id'])
+                jsonl_file.write(json.dumps(item) + '\n')
+
+        print("Successfully inserted exported database")
+        return "Successfully inserted exported database"
+    except Exception as e:
+        print(f"Error exporting database: {e}")
+        return "Error exporting database"
+
+@application.route('/app-flask/recommender', methods=['GET'])
+async def recommender():
+    try:
+        print("Getting recommendations")
+        query = request.args.get('query')
+        amount = int(request.args.get('amount'))
+        print("I received:")
+        print("Query: ", query)
+        print("Amount: ", amount)
+        
+        msg_data = {
+            'query': query,
+            'amount': amount,
+        }
+
+        async with RabbitBroker(host="rabbitmq") as broker:
+            msg = await broker.publish(
+                msg_data,
+                queue="to_recommender",
+                rpc=True,
+            )
+        print("I received response from recommender: ", msg)
+
+        items = []
+        for name, score in msg:
+            items.append(get_item_by_name(name, raw=True))
+
+        response = {
+            'items': items,
+        }
+
+        print("Sending items: ", response)
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error getting recommendations: {e}")
+        return "Error getting recommendations"
 
 if __name__ == '__main__':
     application.run()

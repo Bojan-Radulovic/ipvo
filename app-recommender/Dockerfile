@@ -6,22 +6,10 @@ ENV TRANSFORMERS_CACHE=/tmp
 
 WORKDIR /app
 
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
-
 COPY app-recommender/requirements.txt .
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install -r requirements.txt gunicorn
-
-USER appuser
 
 COPY app-recommender/. .
 
