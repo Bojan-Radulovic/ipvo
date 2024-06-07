@@ -297,6 +297,7 @@ def populate_database_new():
                     'category': row['main_category'],
                     'description': description,
                     'imageUrl': img,
+                    'rating': row['average_rating']
                 }
                 inserted_document = db['items'].insert_one(document)
                 return inserted_document.inserted_id
@@ -404,15 +405,39 @@ def export_database_jsonl():
 async def recommender():
     try:
         print("Getting recommendations")
-        query = request.args.get('query')
-        amount = int(request.args.get('amount'))
+        query = request.args.get('query', None)
+        amount = int(request.args.get('amount', None))
+        name = request.args.get('name', None)
+        description_factor = request.args.get('description_factor')
+        name_factor = request.args.get('name_factor')
+        rating_factor = request.args.get('rating_factor')
+        if description_factor:
+            description_factor = float(description_factor)
+        else:
+            description_factor = 1
+        if name_factor:
+            name_factor = float(name_factor)
+        else:
+            name_factor = 1.25
+        if rating_factor:
+            rating_factor = float(rating_factor)
+        else:
+            rating_factor = 1.25
         print("I received:")
         print("Query: ", query)
         print("Amount: ", amount)
+        print("Name: ", amount)
+        print("description_factor: ", description_factor)
+        print("name_factor: ", name_factor)
+        print("rating_factor: ", rating_factor)
         
         msg_data = {
             'query': query,
             'amount': amount,
+            'name': name,
+            "description_factor": description_factor,
+            "name_factor": name_factor,
+            "rating_factor": rating_factor,
         }
 
         async with RabbitBroker(host="rabbitmq") as broker:
@@ -424,11 +449,12 @@ async def recommender():
         print("I received response from recommender: ", msg)
 
         items = []
-        for name, score in msg:
-            items.append(get_item_by_name(name, raw=True))
+        for name_result, score in msg:
+            if name_result != name:
+                items.append(get_item_by_name(name_result, raw=True))
 
         response = {
-            'items': items,
+            'items': items[:amount],
         }
 
         print("Sending items: ", response)

@@ -16,6 +16,7 @@ function Admin() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [queryAmount, setQueryAmount] = useState("");
   const [query, setQuery] = useState("");
+  const [name, setName] = useState("");
   const [apiResponseRecommender, setApiResponseRecommender] = useState("");
 
   const handleFileUpload = (event) => {
@@ -50,7 +51,7 @@ function Admin() {
 
   const handleGetRecommendations = async () => {
     try {
-      const response = await fetch(`/app-flask/recommender?query=${query}&amount=${queryAmount}`);
+      const response = await fetch(`/app-flask/recommender?query=${query}&amount=${queryAmount}&name=${name}`);
       const responseJson = await response.json();
 
       console.log("Recived recommendations:", responseJson.items);
@@ -203,6 +204,10 @@ function Admin() {
         </div>
       )}
       <form>
+        <label>
+          Name:
+          <textarea value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
         <label>
           Query:
           <textarea value={query} onChange={(e) => setQuery(e.target.value)} />

@@ -47,8 +47,37 @@ const StyledLink = styled(Link)`
 
 const StyledNavBar = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
   margin-top: 20px;
+  padding: 10px;
+`;
+
+const StyledButton = styled.button`
+  align-items: center;
+  border-radius: 5px;
+  color: black;
+  display: flex;
+  flex-flow: row nowrap;
+  font-weight: bold;
+  gap: 0.5rem;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid black;
+  padding: 10px 20px;
+  width: 100px;
+
+  &:hover {
+    background-color: black;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 function Store() {
@@ -106,9 +135,9 @@ function Store() {
         )}
       </StyledProductsGrid>
       <StyledNavBar>
-        <button onClick={goToPreviousPage} disabled={displayPage <= 1}>Previous</button>
+        <StyledButton onClick={goToPreviousPage} disabled={displayPage <= 1}>Previous</StyledButton>
         <span>Page {displayPage} of {totalPages}</span>
-        <button onClick={goToNextPage} disabled={displayPage >= totalPages}>Next</button>
+        <StyledButton onClick={goToNextPage} disabled={displayPage >= totalPages}>Next</StyledButton>
       </StyledNavBar>
       <Footer />
     </div>

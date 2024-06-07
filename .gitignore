@@ -1,3 +1,4 @@
 /data-1/*
 /app-flask/meta_Video_Games.jsonl
-/app-recommender/embeddings
+/app-recommender/embeddings-description
+/app-recommender/embeddings-name

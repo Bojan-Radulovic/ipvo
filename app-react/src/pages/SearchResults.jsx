@@ -67,7 +67,7 @@ function SearchResults() {
 
   const handleGetRecommendations = async () => {
     try {
-      const response = await fetch(`/app-flask/recommender?query=${query}&amount=${queryAmount}`);
+      const response = await fetch(`/app-flask/recommender?query=${query}&name=${query}&amount=${queryAmount}&name_factor=${2}`);
       const responseJson = await response.json();
 
       console.log("Recived recommendations:", responseJson.items);
