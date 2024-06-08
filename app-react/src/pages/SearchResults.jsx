@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Rating from '../components/Rating';
+
 
 const StyledSection = styled.div`
   margin: 0 auto;
@@ -97,6 +99,7 @@ function SearchResults() {
               <div key={index} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0', width: 'fit-content', maxWidth: '15rem'}}>
                   <a href={`/item/${item._id}`}><StyledImg src={item.imageUrl}></StyledImg></a>
                   <StyledLink to={`/item/${item._id}`}>{item.name.slice(0, maxTitleLength) + '...'}</StyledLink>
+                  <Rating rating={item.rating} /> <br />
               </div>
             ))}
           </div>

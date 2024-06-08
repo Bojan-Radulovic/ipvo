@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Rating from '../components/Rating';
 
 const StyledSection = styled.div`
   margin: 0 auto;
@@ -129,6 +130,7 @@ function ItemDetail() {
             <p>Available: {item.available ? 'Yes' : 'No'}</p>
             <p>Category: {item.category}</p>
             <p>Description: {item.description}</p>
+            <Rating rating={item.rating} /> <br />
             <StyledButton onClick={() => handleAddToCart(item)}>Add to cart</StyledButton>
           </StyledWrapperInfo>
         </StyledSection>
