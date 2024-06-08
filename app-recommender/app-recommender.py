@@ -73,6 +73,11 @@ def calculate_total(merged_results, description_factor=1, name_factor=1.5, ratin
     
     return calculated_results
 
+def save_embeddings():
+    description_embeddings.save(description_embeddings_path)
+    name_embeddings.save(name_embeddings_path)
+    print("Embeddings saved!")
+
 @broker.subscriber("to_recommender")
 async def handle(msg):
     print("I received: ", msg)
@@ -92,3 +97,18 @@ async def handle(msg):
 
     print("Sending: ", result)
     return result
+
+@broker.subscriber("index_upsert")
+async def handle(msg):
+    print("I received: ", msg)
+    try:
+        description_embeddings.upsert([(msg["name"], msg["description"], None)])
+        name_embeddings.upsert([(msg["name"], msg["name"], None)])
+
+        save_embeddings()
+
+        return "Upserted to embeddings successfully"
+    except Exception as e:
+        result = "Error upserting to embeddings: " + str(e)
+        print(result)
+        return result

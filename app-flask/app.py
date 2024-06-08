@@ -142,7 +142,7 @@ def get_item_by_name(itemName, raw=False):
         return "Error retrieving item"
 
 @application.route('/app-flask/write')
-def write_database_page():
+async def write_database_page():
     try:
         name = request.args.get('name')
         price = float(request.args.get('price'))
@@ -162,6 +162,20 @@ def write_database_page():
         print("New item's ID: ", item.inserted_id)
     
         print(f"Event data written to MongoDB: {document}")
+
+        msg_data = {
+            '_id': str(item.inserted_id),
+            'description': description,
+            'name': name,
+        }
+
+        async with RabbitBroker(host="rabbitmq") as broker:
+            msg = await broker.publish(
+                msg_data,
+                queue="index_upsert",
+                rpc=True,
+            )
+        print("I received response from recommender: ", msg)
 
         return {
             "message": f"Item {name} added successfully",
