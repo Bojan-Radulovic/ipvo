@@ -21,3 +21,5 @@ To successfully initiate the project, it is necessary to follow these steps:
 1) Clone the project from GitHub to your local machine.
 
 2) Execute the command `docker-compose up`.
+
+3) Access the server using a web browser at the link http://localhost:3000.
