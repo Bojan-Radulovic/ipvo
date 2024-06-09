@@ -2,9 +2,7 @@ version: '3'
 services:
   app-flask:
     container_name: 'app-flask'
-    build:
-      context: .
-      dockerfile: app-flask/Dockerfile
+    image: 'heskiantonio/ipvo-app-flask:latest'
     depends_on:
       - mongodb
       - rabbitmq
@@ -123,9 +121,7 @@ services:
 
   app-recommender:
     container_name: 'app-recommender'
-    build:
-      context: .
-      dockerfile: app-recommender/Dockerfile
+    image: 'heskiantonio/ipvo-app-recommender:latest'
     depends_on:
       - mongodb
       - rabbitmq
