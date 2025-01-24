@@ -18,9 +18,17 @@ function Admin() {
   const [query, setQuery] = useState("");
   const [name, setName] = useState("");
   const [apiResponseRecommender, setApiResponseRecommender] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
+
 
   const handleFileUpload = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const testClassification = async () => {
@@ -52,10 +60,18 @@ function Admin() {
 
   const handleAddItem = async () => {
     try {
-      const response = await fetch(`/app-flask/write?name=${itemName}&price=${itemPrice}&available=${itemAvailable}&category=${itemCategory}&description=${itemDescription}`);
+      var formData = new FormData();
+      formData.append('file', selectedFile);
+      const response = await fetch(`/app-flask/write?name=${itemName}&price=${itemPrice}&available=${itemAvailable}&category=${itemCategory}&description=${itemDescription}`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
       const responseJson = await response.json();
       //const data = await response.text();
 
+      /*
       const uploadResponse = await fetch(`/app-flask/getminiourl?filename=${responseJson._id}`);
       const uploadJson = await uploadResponse.json();
       var formData = new FormData();
@@ -67,7 +83,7 @@ function Admin() {
       const uploadResult = await fetch('http://localhost:9000/photos', {
         method: "POST",
         body: formData
-      });
+      });*/
 
       setApiResponseAddItem(responseJson.message);
     } catch (error) {
@@ -134,144 +150,226 @@ function Admin() {
   
 
   return (
-    <div>
+    <div style={styles.container}>
       <h2>Admin Page</h2>
       
-      <form>
-        <label>
+      <form style={styles.form}>
+        <label style={styles.label}>
           Upload Image:
-          <input type="file" onChange={handleFileUpload} />
+          <input type="file" onChange={handleFileUpload} style={styles.input} />
         </label>
-        <br />
-        <label>
+
+        {imagePreview && (
+          <div style={{ margin: "20px 0", textAlign: "center" }}>
+            <img
+              src={imagePreview}
+              alt="Uploaded Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "300px",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+              }}
+            />
+          </div>
+        )}
+
+        <label style={styles.label}>
           Item Name:
-          <input type="text" value={itemName} onChange={(e) => setItemName(e.target.value)} />
+          <input type="text" value={itemName} onChange={(e) => setItemName(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Item Description:
-          <textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} />
+          <textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} style={styles.textarea} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Item Price:
-          <input type="number" value={itemPrice} onChange={(e) => setItemPrice(e.target.value)} />
+          <input type="number" value={itemPrice} onChange={(e) => setItemPrice(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Item Availability:
-          <input type="checkbox" checked={itemAvailable} onChange={(e) => setItemAvailable(e.target.checked)} />
+          <input type="checkbox" checked={itemAvailable} onChange={(e) => setItemAvailable(e.target.checked)} style={styles.checkbox} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Item Category:
-          <input type="text" value={itemCategory} onClick={testClassification} onChange={(e) => setItemCategory(e.target.value)} />
+          <input type="text" value={itemCategory} onClick={testClassification} onChange={(e) => setItemCategory(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <button type="button" onClick={handleAddItem}>
+
+        <button type="button" onClick={handleAddItem} style={styles.button}>
           Add Item
         </button>
-        <br />
       </form>
 
       {apiResponseAddItem && (
-        <div>
+        <div style={styles.apiResponse}>
           <h3>API Response (Add Item):</h3>
           <p>{apiResponseAddItem}</p>
         </div>
       )}
 
-      <div style={{ marginTop: "20px" }}>
-        <label>
+      {/* Send Email Section */}
+      <div style={styles.section}>
+        <label style={styles.label}>
           To:
-          <input type="text" value={sentTo} onChange={(e) => setSentTo(e.target.value)} />
+          <input type="text" value={sentTo} onChange={(e) => setSentTo(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Subject:
-          <input type="text" value={sentSubject} onChange={(e) => setSentSubject(e.target.value)} />
+          <input type="text" value={sentSubject} onChange={(e) => setSentSubject(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Body:
-          <textarea value={sentBody} onChange={(e) => setSentBody(e.target.value)} />
+          <textarea value={sentBody} onChange={(e) => setSentBody(e.target.value)} style={styles.textarea} />
         </label>
-        <br />
-        <button type="button" onClick={handleSendEmail}>
+
+        <button type="button" onClick={handleSendEmail} style={styles.button}>
           Send Email
         </button>
       </div>
 
       {apiResponseSendEmail && (
-        <div style={{ marginTop: "20px" }}>
+        <div style={styles.apiResponse}>
           <h3>API Response (Send Email):</h3>
           <p>{apiResponseSendEmail}</p>
         </div>
       )}
 
-      <div style={{ marginTop: "20px" }}>
-        <button type="button" onClick={handlePopulateDatabase}>
+      {/* Database Actions */}
+      <div style={styles.section}>
+        <button type="button" onClick={handlePopulateDatabase} style={styles.button}>
           Populate Database
+        </button>
+        <button type="button" onClick={handleExportDatabase} style={styles.button}>
+          Export Database
         </button>
       </div>
 
       {apiResponsePopulate && (
-        <div style={{ marginTop: "20px" }}>
+        <div style={styles.apiResponse}>
           <h3>API Response (Populate Database):</h3>
           <p>{apiResponsePopulate}</p>
         </div>
       )}
 
-      <div style={{ marginTop: "20px" }}>
-        <button type="button" onClick={handleExportDatabase}>
-          Export Database
-        </button>
-      </div>
-
       {apiResponseExport && (
-        <div style={{ marginTop: "20px" }}>
+        <div style={styles.apiResponse}>
           <h3>API Response (Export Database):</h3>
           <p>{apiResponseExport}</p>
         </div>
       )}
-      <form>
-        <label>
+
+      {/* Recommendation Section */}
+      <form style={styles.form}>
+        <label style={styles.label}>
           Name:
-          <textarea value={name} onChange={(e) => setName(e.target.value)} />
+          <textarea value={name} onChange={(e) => setName(e.target.value)} style={styles.textarea} />
         </label>
-        <label>
+
+        <label style={styles.label}>
           Query:
-          <textarea value={query} onChange={(e) => setQuery(e.target.value)} />
+          <textarea value={query} onChange={(e) => setQuery(e.target.value)} style={styles.textarea} />
         </label>
-        <br />
-        <label>
+
+        <label style={styles.label}>
           Amount:
-          <input type="number" value={queryAmount} onChange={(e) => setQueryAmount(e.target.value)} />
+          <input type="number" value={queryAmount} onChange={(e) => setQueryAmount(e.target.value)} style={styles.input} />
         </label>
-        <br />
-        <button type="button" onClick={handleGetRecommendations}>
-          Get recommendations
+
+        <button type="button" onClick={handleGetRecommendations} style={styles.button}>
+          Get Recommendations
         </button>
-        <br />
       </form>
 
       {apiResponseRecommender && (
-        <div style={{ marginTop: "20px" }}>
+        <div style={styles.apiResponse}>
           <h3>API Response (Recommender):</h3>
-          <div style={{ marginTop: "10px" }}>
+          <div style={styles.recommendations}>
             {apiResponseRecommender.map((item, index) => (
-              <div key={index} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0' }}>
-                  {Object.keys(item).map((key) => (
-                      <p key={key}><strong>{key}:</strong> {item[key]}</p>
-                  ))}
+              <div key={index} style={styles.recommendationItem}>
+                {Object.keys(item).map((key) => (
+                  <p key={key}><strong>{key}:</strong> {item[key]}</p>
+                ))}
               </div>
             ))}
           </div>
         </div>
       )}
-
     </div>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "20px",
+    fontFamily: "'Roboto', sans-serif",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+    marginBottom: "30px",
+  },
+  label: {
+    fontWeight: "bold",
+    fontSize: "16px",
+  },
+  input: {
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ddd",
+    fontSize: "16px",
+  },
+  textarea: {
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ddd",
+    fontSize: "16px",
+    minHeight: "80px",
+  },
+  checkbox: {
+    width: "20px",
+    height: "20px",
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    color: "#fff",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "background-color 0.3s ease",
+  },
+  buttonHover: {
+    backgroundColor: "#45a049",
+  },
+  section: {
+    marginTop: "20px",
+  },
+  apiResponse: {
+    marginTop: "20px",
+    padding: "15px",
+    backgroundColor: "#f9f9f9",
+    border: "1px solid #ddd",
+    borderRadius: "5px",
+  },
+  recommendations: {
+    marginTop: "10px",
+  },
+  recommendationItem: {
+    border: '1px solid #ddd', 
+    padding: '10px', 
+    margin: '10px 0',
+    borderRadius: '5px',
+  }
+};
 
 export default Admin;

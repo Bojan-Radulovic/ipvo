@@ -5,6 +5,7 @@ import json
 import asyncio
 from faststream.rabbit import RabbitBroker
 import pandas as pd
+import os
 
 import boto3
 from botocore.client import Config
@@ -64,10 +65,27 @@ def get_items_pagination():
     print("Skip: ", skip)
     print("Limit: ", limit)
 
+    s3 = boto3.client('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password')
     items = list(db['items'].find().skip(skip).limit(limit))
+    # retrieve image urls for all items
+    for item in items:
+        try:
+            if item['extension']:
+                item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                        Params={'Bucket': 'photos',
+                                                                'Key': str(item['_id']) + item['extension']},
+                                                        ExpiresIn=3600)
+                item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        except Exception as e:
+            print(e)
+
     items_with_string_ids = [
         {**item, '_id': str(item['_id'])} for item in items
     ]
+
     
     response = {
         'items': items_with_string_ids,
@@ -91,7 +109,7 @@ def get_item_by_id(itemId):
 
         item['imageUrl'] = s3.generate_presigned_url('get_object',
                                                     Params={'Bucket': 'photos',
-                                                            'Key': str(item_id) + '.jpg'},
+                                                            'Key': str(item_id) + "." + item['extension']},
                                                     ExpiresIn=3600)
         item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
         print("Retrived: ", item)
@@ -114,6 +132,17 @@ def get_item_by_id_new(itemId):
         item = db['items'].find_one({'_id': item_id}, {'_id': 0})
         print("Retrived: ", item)
         item['_id'] = str(item_id)
+
+        s3 = boto3.client('s3',
+                    endpoint_url='http://minio:9000',
+                    aws_access_key_id='minio_user',
+                    aws_secret_access_key='minio_password')
+        
+        item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                    Params={'Bucket': 'photos',
+                                                            'Key': str(item_id) + item['extension']},
+                                                    ExpiresIn=3600)
+        item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
 
         if item:
             print(item)
@@ -141,7 +170,7 @@ def get_item_by_name(itemName, raw=False):
         print(f"Error retrieving item: {e}")
         return "Error retrieving item"
 
-@application.route('/app-flask/write')
+@application.route('/app-flask/write', methods=['POST'])
 async def write_database_page():
     try:
         name = request.args.get('name')
@@ -163,6 +192,29 @@ async def write_database_page():
     
         print(f"Event data written to MongoDB: {document}")
 
+        bucket_name = 'photos'
+
+        available_buckets = [bucket.name for bucket in s3.buckets.all()]
+        if bucket_name not in available_buckets:
+            s3.create_bucket(
+                Bucket=bucket_name,
+                CreateBucketConfiguration={
+                    'LocationConstraint': 'eu-west-1'}
+            )
+        image = request.files['file']
+        source_name = image.filename
+        image.save(source_name)
+
+        
+        db['items'].update_one(
+            {'_id': item.inserted_id},
+            {'$set': {'extension': os.path.splitext(source_name)[-1]}}
+        )
+
+
+        destination_name = str(item.inserted_id) + os.path.splitext(source_name)[-1]
+        s3.Bucket(bucket_name).upload_file(source_name, destination_name)
+
         msg_data = {
             '_id': str(item.inserted_id),
             'description': description,
@@ -177,6 +229,7 @@ async def write_database_page():
             )
         print("I received response from recommender: ", msg)
 
+        os.remove(source_name)
         return {
             "message": f"Item {name} added successfully",
             "_id": str(item.inserted_id)

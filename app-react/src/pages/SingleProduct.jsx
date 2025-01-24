@@ -73,6 +73,10 @@ function ItemDetail() {
       try {
         const response = await fetch(`/app-flask/item-new/${itemId}`);
         const data = await response.json();
+
+        console.log('Item details:', data);
+
+
         setItem(data);
       } catch (error) {
         console.error('Error fetching item details:', error);
