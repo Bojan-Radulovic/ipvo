@@ -23,6 +23,33 @@ function Admin() {
     setSelectedFile(event.target.files[0]);
   };
 
+  const testClassification = async () => {
+    if(selectedFile != null && itemDescription != "")
+    {
+      try {
+        var formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('itemDescription', itemDescription);
+  
+        const uploadResult = await fetch('/app-classification/classify', {
+          method: "POST",
+          body: formData
+        });
+  
+  
+        //const response = await fetch(`/app-classification/test`);
+        //const responseJson = await response.json();
+  
+        const result = await uploadResult.json();
+        setItemCategory(result.predicted_class);
+
+        console.log("Upload result:", result);
+      } catch (error) {
+        console.error("Error uploading the image:", error);
+      }
+    }
+  };
+
   const handleAddItem = async () => {
     try {
       const response = await fetch(`/app-flask/write?name=${itemName}&price=${itemPrice}&available=${itemAvailable}&category=${itemCategory}&description=${itemDescription}`);
@@ -112,8 +139,18 @@ function Admin() {
       
       <form>
         <label>
+          Upload Image:
+          <input type="file" onChange={handleFileUpload} />
+        </label>
+        <br />
+        <label>
           Item Name:
           <input type="text" value={itemName} onChange={(e) => setItemName(e.target.value)} />
+        </label>
+        <br />
+        <label>
+          Item Description:
+          <textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} />
         </label>
         <br />
         <label>
@@ -128,15 +165,9 @@ function Admin() {
         <br />
         <label>
           Item Category:
-          <input type="text" value={itemCategory} onChange={(e) => setItemCategory(e.target.value)} />
+          <input type="text" value={itemCategory} onClick={testClassification} onChange={(e) => setItemCategory(e.target.value)} />
         </label>
         <br />
-        <label>
-          Item Description:
-          <textarea value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} />
-        </label>
-        <br />
-        <input type="file" onChange={handleFileUpload} />
         <button type="button" onClick={handleAddItem}>
           Add Item
         </button>

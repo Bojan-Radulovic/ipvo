@@ -10,6 +10,24 @@ services:
     networks:
       - internalnet
 
+  app-classification:
+    container_name: 'app-classification'
+    user: 'root'
+    build:
+      context: .
+      dockerfile: app-classification/Dockerfile
+    depends_on:
+      - mongodb
+      - rabbitmq
+    volumes:
+      - ./app-classification:/app
+      - /app/__pycache__
+    environment:
+      FLASK_ENV: development
+    restart: always
+    networks:
+      - internalnet
+
   load_balancer:
     container_name: load_balancer
     image: nginx:latest
