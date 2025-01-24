@@ -191,6 +191,7 @@ def classify():
         text_input = data
 
         # Predicting with both image and text
+        model.eval()
         predicted_class_name_multimodal = predict(image_path=image_path, text=text_input, model=model, device=device, categories=image_categories)
         print(f"Predicted class (image + text): {predicted_class_name_multimodal}")
 

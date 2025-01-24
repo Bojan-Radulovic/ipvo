@@ -29,4 +29,4 @@ USER appuser
 
 EXPOSE 5000
 
-CMD ["gunicorn", "-w", "3", "-b", ":5000", "--timeout", "300", "app"]
+CMD ["gunicorn", "-w", "1", "-b", ":5000", "--timeout", "300", "app"]
