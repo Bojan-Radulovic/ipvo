@@ -196,7 +196,7 @@ function Admin() {
 
         <label style={styles.label}>
           Item Category:
-          <input type="text" value={itemCategory} onClick={testClassification} onChange={(e) => setItemCategory(e.target.value)} style={styles.input} />
+          <input type="text" value={itemCategory} onClick={testClassification} onFocus={testClassification} onChange={(e) => setItemCategory(e.target.value)} style={styles.input} />
         </label>
 
         <button type="button" onClick={handleAddItem} style={styles.button}>
