@@ -20,18 +20,12 @@ This project was made as a part of the Infrastructure for large-scale data unive
 To successfully initiate the project, it is necessary to follow these steps:
 1) Clone the project from GitHub to your local machine.
 
-2) In app-email/app-email.py, change 'app-password-for-your-gmail' to your app password for your gmail.
+2) In compose.yaml, change GMAIL_APP_PASSWORD env var to your app password for your gmail. (needed for email functionality, optional)
 
-3) Download data and put it in app-flask folder. Download link: https://datarepo.eng.ucsd.edu/mcauley_group/data/amazon_2023/raw/meta_categories/meta_Video_Games.jsonl.gz
+3) Open a terminal in the project's root directory.
 
-4) Download embeddings-description.zip and extract to app-recommender/embeddings-description. Download link: https://drive.google.com/file/d/1qWTTI0dS7yC3Skb-1m8oFn18k_6ugB2k/view?usp=sharing
+4) Execute the command `docker-compose up`.
 
-5) Download embeddings-name.zip and extract to app-recommender/embeddings-name. Download link: https://drive.google.com/file/d/1HAtLXaf1KGNl6h4zBPTMU93D8SVCi_SW/view?usp=sharing
+5) Wait for the system to initialize.
 
-6) Open a terminal in the project's root directory.
-
-7) Execute the command `docker-compose up`.
-
-8) Wait for the system to initialize.
-
-9) Access the server using a web browser at the link http://localhost:3000.
+6) Access the server using a web browser at the link http://localhost:8080.
