@@ -2,5 +2,5 @@
 /app-flask/meta_Video_Games.jsonl
 /app-recommender/embeddings-description
 /app-recommender/embeddings-name
-/app-classification/models
+/app-classification/models/multimodal_classifier_10.pth
 /app-classification/datasets
