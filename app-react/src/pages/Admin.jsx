@@ -32,11 +32,12 @@ function Admin() {
   };
 
   const testClassification = async () => {
-    if(selectedFile != null && itemDescription != "")
+    if(selectedFile != null || itemDescription != "")
     {
       try {
         var formData = new FormData();
-        formData.append('image', selectedFile);
+        if(selectedFile != null)
+          formData.append('image', selectedFile);
         formData.append('itemDescription', itemDescription);
   
         const uploadResult = await fetch('/app-classification/classify', {
@@ -44,9 +45,6 @@ function Admin() {
           body: formData
         });
   
-  
-        //const response = await fetch(`/app-classification/test`);
-        //const responseJson = await response.json();
   
         const result = await uploadResult.json();
         setItemCategory(result.predicted_class);
@@ -69,21 +67,6 @@ function Admin() {
         }
       );
       const responseJson = await response.json();
-      //const data = await response.text();
-
-      /*
-      const uploadResponse = await fetch(`/app-flask/getminiourl?filename=${responseJson._id}`);
-      const uploadJson = await uploadResponse.json();
-      var formData = new FormData();
-      for(var key in uploadJson.fields)
-      {
-        formData.append(key, uploadJson.fields[key]);
-      }
-      formData.append('file', selectedFile);
-      const uploadResult = await fetch('http://localhost:9000/photos', {
-        method: "POST",
-        body: formData
-      });*/
 
       setApiResponseAddItem(responseJson.message);
     } catch (error) {
