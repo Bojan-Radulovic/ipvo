@@ -107,11 +107,16 @@ def get_item_by_id(itemId):
                     aws_access_key_id='minio_user',
                     aws_secret_access_key='minio_password')
 
-        item['imageUrl'] = s3.generate_presigned_url('get_object',
-                                                    Params={'Bucket': 'photos',
-                                                            'Key': str(item_id) + "." + item['extension']},
-                                                    ExpiresIn=3600)
-        item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        try:
+            if item['extension']:
+                item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                        Params={'Bucket': 'photos',
+                                                                'Key': str(item['_id']) + item['extension']},
+                                                        ExpiresIn=3600)
+                item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        except Exception as e:
+            print(e)
+
         print("Retrived: ", item)
         item['_id'] = str(item_id)
 
@@ -138,11 +143,15 @@ def get_item_by_id_new(itemId):
                     aws_access_key_id='minio_user',
                     aws_secret_access_key='minio_password')
         
-        item['imageUrl'] = s3.generate_presigned_url('get_object',
-                                                    Params={'Bucket': 'photos',
-                                                            'Key': str(item_id) + item['extension']},
-                                                    ExpiresIn=3600)
-        item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        try:
+            if item['extension']:
+                item['imageUrl'] = s3.generate_presigned_url('get_object',
+                                                        Params={'Bucket': 'photos',
+                                                                'Key': str(item['_id']) + item['extension']},
+                                                        ExpiresIn=3600)
+                item['imageUrl'] = 'http://localhost' + item['imageUrl'][12:]
+        except Exception as e:
+            print(e)
 
         if item:
             print(item)
